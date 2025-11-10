@@ -1,16 +1,18 @@
 import React from 'react';
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Square, Droplet } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Square, Droplet, Zap } from 'lucide-react';
 
 interface ControlPanelWiFiProps {
   onCommand: (command: string) => void;
   pumpStatus: boolean;
   disabled: boolean;
+  isManualMode: boolean;
 }
 
 export const ControlPanelWiFi: React.FC<ControlPanelWiFiProps> = ({
   onCommand,
   pumpStatus,
   disabled,
+  isManualMode,
 }) => {
   const buttonClass = `
     flex items-center justify-center p-8 rounded-2xl font-bold text-white
@@ -41,7 +43,7 @@ export const ControlPanelWiFi: React.FC<ControlPanelWiFiProps> = ({
 
         {/* Row 2 */}
         <button
-          onClick={() => onCommand('L')}
+          onClick={() => onCommand('R')}
           disabled={disabled}
           className={`${buttonClass} bg-gradient-to-br from-slate-700 to-slate-800 hover:from-cyan-600 hover:to-cyan-700 border-2 border-slate-600 hover:border-cyan-400`}
           title="Left"
@@ -59,7 +61,7 @@ export const ControlPanelWiFi: React.FC<ControlPanelWiFiProps> = ({
           <Square className="w-10 h-10 text-red-300 group-hover:text-white relative z-10" />
         </button>
         <button
-          onClick={() => onCommand('R')}
+          onClick={() => onCommand('L')}
           disabled={disabled}
           className={`${buttonClass} bg-gradient-to-br from-slate-700 to-slate-800 hover:from-cyan-600 hover:to-cyan-700 border-2 border-slate-600 hover:border-cyan-400`}
           title="Right"
@@ -80,6 +82,29 @@ export const ControlPanelWiFi: React.FC<ControlPanelWiFiProps> = ({
           <ArrowDown className="w-10 h-10 text-slate-200 group-hover:text-white relative z-10" />
         </button>
         <div></div>
+      </div>
+
+      {/* Mode Toggle */}
+      <div className="border-t border-slate-800 pt-6 mb-6">
+        <button
+          onClick={() => onCommand('AUTO')}
+          disabled={disabled}
+          className={`
+            w-full flex items-center justify-center gap-4 p-5 rounded-2xl font-bold
+            transition-all duration-300 transform hover:scale-105 active:scale-95 
+            disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100
+            shadow-2xl relative overflow-hidden group
+            ${!isManualMode 
+              ? 'bg-gradient-to-r from-green-600 to-green-700 border-2 border-green-400 hover:from-green-500 hover:to-green-600 shadow-green-500/50' 
+              : 'bg-gradient-to-r from-slate-700 to-slate-800 border-2 border-slate-600 hover:border-green-400 hover:from-slate-600 hover:to-slate-700'}
+          `}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+          <Zap className={`w-7 h-7 relative z-10 ${!isManualMode ? 'text-white animate-pulse' : 'text-slate-300 group-hover:text-green-400'}`} />
+          <span className={`text-base relative z-10 ${!isManualMode ? 'text-white' : 'text-slate-200 group-hover:text-white'}`}>
+            {isManualMode ? 'Switch to AUTO Mode' : 'AUTO Mode Active'}
+          </span>
+        </button>
       </div>
 
       {/* Pump Control */}

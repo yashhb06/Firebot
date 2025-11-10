@@ -19,7 +19,7 @@ export interface SensorData {
   pumpStatus: boolean;
 }
 
-export type Command = 'F' | 'B' | 'L' | 'R' | 'S' | 'P1' | 'P0' | 'EXTINGUISH';
+export type Command = 'F' | 'B' | 'L' | 'R' | 'S' | 'P1' | 'P0' | 'AUTO' | 'EXTINGUISH';
 
 class WiFiService {
   private esp32Url: string = 'http://192.168.4.1'; // ESP32 Access Point IP
@@ -27,6 +27,7 @@ class WiFiService {
   private statusInterval: number | null = null;
   private onSensorDataCallback: ((data: SensorData) => void) | null = null;
   private onConnectionChangeCallback: ((connected: boolean) => void) | null = null;
+  private onModeChangeCallback: ((manualMode: boolean) => void) | null = null;
 
   /**
    * Connect to ESP32 via WiFi
@@ -152,7 +153,7 @@ class WiFiService {
   /**
    * Get current robot status
    */
-  async getStatus(): Promise<{ connected: boolean; sensorData: SensorData }> {
+  async getStatus(): Promise<{ connected: boolean; sensorData: SensorData; manualMode: boolean }> {
     try {
       const response = await fetch(`${this.esp32Url}/api/status`);
       
@@ -161,7 +162,11 @@ class WiFiService {
       }
 
       const data = await response.json();
-      return data;
+      return {
+        connected: data.connected || false,
+        sensorData: data.sensorData || { fireDetected: false, pumpStatus: false },
+        manualMode: data.manualMode || false
+      };
 
     } catch (error) {
       console.error('❌ Failed to get status:', error);
@@ -170,7 +175,8 @@ class WiFiService {
         sensorData: {
           fireDetected: false,
           pumpStatus: false
-        }
+        },
+        manualMode: false
       };
     }
   }
@@ -204,6 +210,10 @@ class WiFiService {
           if (this.onSensorDataCallback && status.sensorData) {
             this.onSensorDataCallback(status.sensorData);
           }
+          
+          if (this.onModeChangeCallback !== null) {
+            this.onModeChangeCallback(status.manualMode);
+          }
         } catch (error) {
           console.error('Status polling error:', error);
           // Don't disconnect on single polling error
@@ -234,6 +244,13 @@ class WiFiService {
    */
   onConnectionChange(callback: (connected: boolean) => void): void {
     this.onConnectionChangeCallback = callback;
+  }
+
+  /**
+   * Register callback for mode changes
+   */
+  onModeChange(callback: (manualMode: boolean) => void): void {
+    this.onModeChangeCallback = callback;
   }
 
   /**

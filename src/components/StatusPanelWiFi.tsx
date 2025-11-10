@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flame, Droplet } from 'lucide-react';
+import { Flame, Droplet, Zap, Hand } from 'lucide-react';
 
 interface SensorData {
   fire: boolean;
@@ -9,12 +9,41 @@ interface SensorData {
 interface StatusPanelWiFiProps {
   sensorData: SensorData;
   isConnected: boolean;
+  isManualMode: boolean;
 }
 
-export const StatusPanelWiFi: React.FC<StatusPanelWiFiProps> = ({ sensorData, isConnected }) => {
+export const StatusPanelWiFi: React.FC<StatusPanelWiFiProps> = ({ sensorData, isConnected, isManualMode }) => {
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 animate-fade-in">
       <h2 className="text-2xl font-bold text-white mb-6">System Status</h2>
+
+      {/* Mode Status */}
+      <div className="mb-6 p-6 rounded-2xl border-2 transition-all duration-300 hover:scale-105 animate-fade-in bg-gradient-to-br from-slate-800/80 to-slate-900/60 border-slate-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className={`p-3 rounded-xl transition-all duration-300 ${
+              isManualMode ? 'bg-blue-500/30' : 'bg-green-500/30 animate-pulse'
+            }`}>
+              {isManualMode ? (
+                <Hand className="w-8 h-8 text-blue-400" />
+              ) : (
+                <Zap className="w-8 h-8 text-green-400 drop-shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
+              )}
+            </div>
+            <div>
+              <p className="text-base font-semibold text-white">Control Mode</p>
+              <p className="text-sm text-slate-400 mt-1">Current operation mode</p>
+            </div>
+          </div>
+          <div className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
+            isManualMode
+              ? 'bg-blue-500/30 text-blue-300 border-2 border-blue-400/50'
+              : 'bg-green-500/30 text-green-300 border-2 border-green-400/50 shadow-lg shadow-green-500/30'
+          }`}>
+            {isManualMode ? 'Manual' : 'Auto'}
+          </div>
+        </div>
+      </div>
 
       {/* Sensor Data */}
       <div className="space-y-4">

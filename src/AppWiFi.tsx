@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { HeaderWiFi } from './components/HeaderWiFi';
 import { ControlPanelWiFi } from './components/ControlPanelWiFi';
 import { StatusPanelWiFi } from './components/StatusPanelWiFi';
-import { websocketService } from './services/websocketService';
+import { wifiService } from './services/wifiService';
 
 interface SensorData {
   fire: boolean;
@@ -12,6 +12,7 @@ interface SensorData {
 function AppWiFi() {
   const [isConnected, setIsConnected] = useState(false);
   const [esp32Ip, setEsp32Ip] = useState('192.168.4.1');
+  const [isManualMode, setIsManualMode] = useState(false);
   const [sensorData, setSensorData] = useState<SensorData>({
     fire: false,
     pump: false,
@@ -31,51 +32,59 @@ function AppWiFi() {
     }
   }, [isConnected]);
 
-  // Set up WebSocket callbacks
+  // Set up WiFi service callbacks
   useEffect(() => {
-    websocketService.onSensorData((data: SensorData) => {
-      setSensorData(data);
+    wifiService.onSensorData((data) => {
+      setSensorData({
+        fire: data.fireDetected,
+        pump: data.pumpStatus
+      });
     });
 
-    websocketService.onConnectionChange((connected: boolean) => {
+    wifiService.onConnectionChange((connected: boolean) => {
       setIsConnected(connected);
+    });
+
+    wifiService.onModeChange((manualMode: boolean) => {
+      setIsManualMode(manualMode);
     });
   }, []);
 
-  const handleConnect = (ip: string) => {
+  const handleConnect = async (ip: string) => {
     try {
       setEsp32Ip(ip);
-      websocketService.setEsp32Ip(ip);
-      websocketService.connect();
+      await wifiService.connect();
     } catch (error) {
       console.error('Connection error:', error);
-      alert(`Failed to connect to ESP32 at ${ip}. Make sure the robot is powered on and connected to the same network.`);
+      alert(`Failed to connect to ESP32 at ${ip}. Make sure you are connected to FireBot-AP WiFi network.`);
     }
   };
 
-  const handleDisconnect = () => {
+  const handleDisconnect = async () => {
     try {
-      websocketService.disconnect();
+      await wifiService.disconnect();
       setIsConnected(false);
     } catch (error) {
       console.error('Disconnection error:', error);
     }
   };
 
-  const handleCommand = (command: string) => {
+  const handleCommand = async (command: string) => {
     if (!isConnected) {
       alert('Please connect to the robot first!');
       return;
     }
 
     try {
-      websocketService.sendCommand(command as any);
+      await wifiService.sendCommand(command as any);
       
       // Update pump status locally for immediate feedback
       if (command === 'P1') {
         setSensorData(prev => ({ ...prev, pump: true }));
       } else if (command === 'P0') {
         setSensorData(prev => ({ ...prev, pump: false }));
+      } else if (command === 'AUTO') {
+        setIsManualMode(false);
       }
     } catch (error) {
       console.error('Command error:', error);
@@ -98,8 +107,13 @@ function AppWiFi() {
             onCommand={handleCommand}
             pumpStatus={sensorData.pump}
             disabled={!isConnected}
+            isManualMode={isManualMode}
           />
-          <StatusPanelWiFi sensorData={sensorData} isConnected={isConnected} />
+          <StatusPanelWiFi 
+            sensorData={sensorData} 
+            isConnected={isConnected}
+            isManualMode={isManualMode}
+          />
         </div>
 
         {/* Instructions */}
