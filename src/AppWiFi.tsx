@@ -2,89 +2,76 @@ import { useState, useEffect } from 'react';
 import { HeaderWiFi } from './components/HeaderWiFi';
 import { ControlPanelWiFi } from './components/ControlPanelWiFi';
 import { StatusPanelWiFi } from './components/StatusPanelWiFi';
-import { wifiService } from './services/wifiService';
+import { WiFiSettingsModal } from './components/WiFiSettingsModal';
+import { websocketService } from './services/wifiService';
 
 interface SensorData {
   fire: boolean;
   pump: boolean;
+  manualMode: boolean;
 }
 
 function AppWiFi() {
   const [isConnected, setIsConnected] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [esp32Ip, setEsp32Ip] = useState('192.168.4.1');
-  const [isManualMode, setIsManualMode] = useState(false);
   const [sensorData, setSensorData] = useState<SensorData>({
     fire: false,
     pump: false,
+    manualMode: false,
   });
 
-  // Simulate sensor data when not connected
+  // Register real-time callbacks from ESP32 HTTP polling
   useEffect(() => {
-    if (!isConnected) {
-      const interval = setInterval(() => {
-        setSensorData({
-          fire: Math.random() > 0.7, // Random fire detection for testing
-          pump: false,
-        });
-      }, 3000); // Update every 3 seconds
-
-      return () => clearInterval(interval);
-    }
-  }, [isConnected]);
-
-  // Set up WiFi service callbacks
-  useEffect(() => {
-    wifiService.onSensorData((data) => {
-      setSensorData({
-        fire: data.fireDetected,
-        pump: data.pumpStatus
-      });
+    websocketService.onSensorData((data: SensorData) => {
+      setSensorData(data);
     });
 
-    wifiService.onConnectionChange((connected: boolean) => {
+    websocketService.onConnectionChange((connected: boolean) => {
       setIsConnected(connected);
-    });
-
-    wifiService.onModeChange((manualMode: boolean) => {
-      setIsManualMode(manualMode);
+      if (!connected) {
+        setSensorData({ fire: false, pump: false, manualMode: false });
+      }
     });
   }, []);
 
-  const handleConnect = async (ip: string) => {
+  const handleConnect = (ip: string) => {
     try {
       setEsp32Ip(ip);
-      await wifiService.connect();
+      websocketService.setEsp32Ip(ip);
+      websocketService.connect();
     } catch (error) {
       console.error('Connection error:', error);
-      alert(`Failed to connect to ESP32 at ${ip}. Make sure you are connected to FireBot-AP WiFi network.`);
+      alert(`Failed to connect to ESP32 at ${ip}. Make sure the robot is powered on and connected to the same network.`);
     }
   };
 
-  const handleDisconnect = async () => {
+  const handleDisconnect = () => {
     try {
-      await wifiService.disconnect();
+      websocketService.disconnect();
       setIsConnected(false);
     } catch (error) {
       console.error('Disconnection error:', error);
     }
   };
 
-  const handleCommand = async (command: string) => {
+  const handleCommand = (command: string) => {
     if (!isConnected) {
       alert('Please connect to the robot first!');
       return;
     }
 
     try {
-      await wifiService.sendCommand(command as any);
+      websocketService.sendCommand(command as any);
       
-      // Update pump status locally for immediate feedback
       if (command === 'P1') {
         setSensorData(prev => ({ ...prev, pump: true }));
       } else if (command === 'P0') {
         setSensorData(prev => ({ ...prev, pump: false }));
       } else if (command === 'AUTO') {
-        setIsManualMode(false);
+        setSensorData(prev => ({ ...prev, manualMode: false }));
+      } else if (['F','B','L','R','S'].includes(command)) {
+        setSensorData(prev => ({ ...prev, manualMode: true }));
       }
     } catch (error) {
       console.error('Command error:', error);
@@ -99,6 +86,13 @@ function AppWiFi() {
         esp32Ip={esp32Ip}
         onConnect={handleConnect}
         onDisconnect={handleDisconnect}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
+
+      <WiFiSettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        isConnected={isConnected}
       />
 
       <main className="container mx-auto px-4 py-8">
@@ -106,14 +100,10 @@ function AppWiFi() {
           <ControlPanelWiFi
             onCommand={handleCommand}
             pumpStatus={sensorData.pump}
+            manualMode={sensorData.manualMode}
             disabled={!isConnected}
-            isManualMode={isManualMode}
           />
-          <StatusPanelWiFi 
-            sensorData={sensorData} 
-            isConnected={isConnected}
-            isManualMode={isManualMode}
-          />
+          <StatusPanelWiFi sensorData={sensorData} isConnected={isConnected} />
         </div>
 
         {/* Instructions */}

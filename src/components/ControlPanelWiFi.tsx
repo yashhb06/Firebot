@@ -1,73 +1,75 @@
 import React from 'react';
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Square, Droplet, Zap } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Square, Droplet } from 'lucide-react';
 
 interface ControlPanelWiFiProps {
   onCommand: (command: string) => void;
   pumpStatus: boolean;
+  manualMode?: boolean;
   disabled: boolean;
-  isManualMode: boolean;
 }
 
 export const ControlPanelWiFi: React.FC<ControlPanelWiFiProps> = ({
   onCommand,
   pumpStatus,
+  manualMode,
   disabled,
-  isManualMode,
 }) => {
   const buttonClass = `
-    flex items-center justify-center p-8 rounded-2xl font-bold text-white
-    transition-all duration-300 transform hover:scale-110 active:scale-95 
-    disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100
-    shadow-2xl hover:shadow-cyan-500/50 backdrop-blur-sm
-    relative overflow-hidden group
+    glass-button flex items-center justify-center p-8 rounded-2xl font-bold text-white
+    active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed
   `;
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-white mb-6">Movement Controls</h2>
+    <div className="glass-panel p-8 rounded-3xl relative overflow-hidden group h-full">
+      <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      <h2 className="text-xl font-bold text-white mb-8 tracking-tight flex items-center gap-2">
+        <div className="w-2 h-6 bg-orange-500 rounded-full" /> Tactical Commands
+      </h2>
 
       {/* Movement Controls */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      {/* Movement Controls */}
+      <div className="grid grid-cols-3 gap-5 mb-8">
         {/* Row 1 */}
         <div></div>
         <button
           onClick={() => onCommand('F')}
           disabled={disabled}
-          className={`${buttonClass} bg-gradient-to-br from-slate-700 to-slate-800 hover:from-cyan-600 hover:to-cyan-700 border-2 border-slate-600 hover:border-cyan-400`}
+          className={`${buttonClass} bg-cyan-900/10 hover:bg-cyan-500/20 border-cyan-500/30 hover:border-cyan-400 group/btn shadow-[0_0_15px_rgba(6,182,212,0.1)] hover:shadow-[0_0_25px_rgba(6,182,212,0.3)]`}
           title="Forward"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-          <ArrowUp className="w-10 h-10 text-slate-200 group-hover:text-white relative z-10" />
+          <ArrowUp className="w-8 h-8 text-cyan-400 group-hover/btn:text-white drop-shadow-md transition-colors" />
         </button>
         <div></div>
 
         {/* Row 2 */}
         <button
-          onClick={() => onCommand('R')}
+          onClick={() => onCommand('L')}
           disabled={disabled}
-          className={`${buttonClass} bg-gradient-to-br from-slate-700 to-slate-800 hover:from-cyan-600 hover:to-cyan-700 border-2 border-slate-600 hover:border-cyan-400`}
+          className={`${buttonClass} bg-cyan-900/10 hover:bg-cyan-500/20 border-cyan-500/30 hover:border-cyan-400 group/btn shadow-[0_0_15px_rgba(6,182,212,0.1)] hover:shadow-[0_0_25px_rgba(6,182,212,0.3)]`}
           title="Left"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-          <ArrowLeft className="w-10 h-10 text-slate-200 group-hover:text-white relative z-10" />
+          <ArrowLeft className="w-8 h-8 text-cyan-400 group-hover/btn:text-white drop-shadow-md transition-colors" />
         </button>
         <button
           onClick={() => onCommand('S')}
           disabled={disabled}
-          className={`${buttonClass} bg-gradient-to-br from-red-900/60 to-red-800/40 hover:from-red-600 hover:to-red-700 border-2 border-red-500/50 hover:border-red-400 animate-pulse-glow`}
+          className={`flex items-center justify-center p-8 rounded-2xl font-bold text-white
+            transition-all duration-300 transform hover:scale-110 active:scale-95 
+            disabled:opacity-30 disabled:cursor-not-allowed
+            bg-red-600/20 hover:bg-red-500/30 border border-red-500/50 hover:border-red-400
+            shadow-[0_0_20px_rgba(239,68,68,0.2)] hover:shadow-[0_0_30px_rgba(239,68,68,0.4)]
+            relative overflow-hidden group/btn`}
           title="Stop"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-400/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-          <Square className="w-10 h-10 text-red-300 group-hover:text-white relative z-10" />
+          <Square className="w-8 h-8 text-red-500 group-hover/btn:text-red-300 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] transition-colors" />
         </button>
         <button
-          onClick={() => onCommand('L')}
+          onClick={() => onCommand('R')}
           disabled={disabled}
-          className={`${buttonClass} bg-gradient-to-br from-slate-700 to-slate-800 hover:from-cyan-600 hover:to-cyan-700 border-2 border-slate-600 hover:border-cyan-400`}
+          className={`${buttonClass} bg-cyan-900/10 hover:bg-cyan-500/20 border-cyan-500/30 hover:border-cyan-400 group/btn shadow-[0_0_15px_rgba(6,182,212,0.1)] hover:shadow-[0_0_25px_rgba(6,182,212,0.3)]`}
           title="Right"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-          <ArrowRight className="w-10 h-10 text-slate-200 group-hover:text-white relative z-10" />
+          <ArrowRight className="w-8 h-8 text-cyan-400 group-hover/btn:text-white drop-shadow-md transition-colors" />
         </button>
 
         {/* Row 3 */}
@@ -75,62 +77,51 @@ export const ControlPanelWiFi: React.FC<ControlPanelWiFiProps> = ({
         <button
           onClick={() => onCommand('B')}
           disabled={disabled}
-          className={`${buttonClass} bg-gradient-to-br from-slate-700 to-slate-800 hover:from-cyan-600 hover:to-cyan-700 border-2 border-slate-600 hover:border-cyan-400`}
+          className={`${buttonClass} bg-cyan-900/10 hover:bg-cyan-500/20 border-cyan-500/30 hover:border-cyan-400 group/btn shadow-[0_0_15px_rgba(6,182,212,0.1)] hover:shadow-[0_0_25px_rgba(6,182,212,0.3)]`}
           title="Backward"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-          <ArrowDown className="w-10 h-10 text-slate-200 group-hover:text-white relative z-10" />
+          <ArrowDown className="w-8 h-8 text-cyan-400 group-hover/btn:text-white drop-shadow-md transition-colors" />
         </button>
         <div></div>
       </div>
 
-      {/* Mode Toggle */}
-      <div className="border-t border-slate-800 pt-6 mb-6">
-        <button
-          onClick={() => onCommand('AUTO')}
-          disabled={disabled}
-          className={`
-            w-full flex items-center justify-center gap-4 p-5 rounded-2xl font-bold
-            transition-all duration-300 transform hover:scale-105 active:scale-95 
-            disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100
-            shadow-2xl relative overflow-hidden group
-            ${!isManualMode 
-              ? 'bg-gradient-to-r from-green-600 to-green-700 border-2 border-green-400 hover:from-green-500 hover:to-green-600 shadow-green-500/50' 
-              : 'bg-gradient-to-r from-slate-700 to-slate-800 border-2 border-slate-600 hover:border-green-400 hover:from-slate-600 hover:to-slate-700'}
-          `}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-          <Zap className={`w-7 h-7 relative z-10 ${!isManualMode ? 'text-white animate-pulse' : 'text-slate-300 group-hover:text-green-400'}`} />
-          <span className={`text-base relative z-10 ${!isManualMode ? 'text-white' : 'text-slate-200 group-hover:text-white'}`}>
-            {isManualMode ? 'Switch to AUTO Mode' : 'AUTO Mode Active'}
-          </span>
-        </button>
-      </div>
-
       {/* Pump Control */}
-      <div className="border-t border-slate-800 pt-6">
+      {/* Pump Control */}
+      <div className="border-t border-white/5 pt-6">
         <button
           onClick={() => onCommand(pumpStatus ? 'P0' : 'P1')}
           disabled={disabled}
           className={`
-            w-full flex items-center justify-center gap-4 p-5 rounded-2xl font-bold
-            transition-all duration-300 transform hover:scale-105 active:scale-95 
-            disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100
-            shadow-2xl relative overflow-hidden group
+            w-full flex items-center justify-center gap-4 py-4 rounded-xl font-bold border active:scale-[0.98]
+            transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed
             ${pumpStatus 
-              ? 'bg-gradient-to-r from-cyan-600 to-cyan-700 border-2 border-cyan-400 hover:from-cyan-500 hover:to-cyan-600 shadow-cyan-500/50' 
-              : 'bg-gradient-to-r from-slate-700 to-slate-800 border-2 border-slate-600 hover:border-cyan-400 hover:from-slate-600 hover:to-slate-700'}
+              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.3)] animate-pulse' 
+              : 'bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:border-cyan-500/50 hover:text-cyan-400'}
           `}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-          <Droplet className={`w-7 h-7 relative z-10 ${pumpStatus ? 'text-white animate-pulse' : 'text-slate-300 group-hover:text-cyan-400'}`} />
-          <span className={`text-base relative z-10 ${pumpStatus ? 'text-white' : 'text-slate-200 group-hover:text-white'}`}>
-            Pump {pumpStatus ? 'OFF' : 'ON'}
-          </span>
+          <Droplet className={`w-5 h-5 ${pumpStatus ? 'drop-shadow-[0_0_8px_rgba(6,182,212,1)]' : ''}`} />
+          <span>{pumpStatus ? 'SYSTEM ACTIVE — DEACTIVATE PUMP' : 'INITIATE SUPPRESSION PUMP'}</span>
         </button>
       </div>
 
-
+      {/* Mode Toggle */}
+      {/* Mode Toggle */}
+      <div className="pt-4 mt-2">
+        <button
+          onClick={() => onCommand(manualMode ? 'AUTO' : 'F')}
+          disabled={disabled}
+          className={`
+            w-full flex items-center justify-center gap-3 py-3 rounded-xl font-bold border active:scale-[0.98]
+            transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed text-xs tracking-wider uppercase
+            ${manualMode
+              ? 'bg-purple-500/10 text-purple-400 border-purple-500/30 hover:bg-purple-500/20'
+              : 'bg-orange-500/10 text-orange-400 border-orange-500/30 hover:bg-orange-500/20'}
+          `}
+          title={manualMode ? 'Switch to Autonomous Mode' : 'Currently in AUTO mode'}
+        >
+          {manualMode ? 'Switch to Autonomous AI' : 'Override to Manual Control'}
+        </button>
+      </div>
     </div>
   );
 };
