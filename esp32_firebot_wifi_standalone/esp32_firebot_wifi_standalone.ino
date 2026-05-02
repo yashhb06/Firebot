@@ -7,15 +7,15 @@
  * - MOSFET pump timing stabilized
  */
 
-#include <WiFi.h>
-#include <WebServer.h>
 #include <ESP32Servo.h>
+#include <WebServer.h>
+#include <WiFi.h>
 
 // ========================================
 // WiFi Configuration
 // ========================================
-const char* ssid = "FireBot-AP";
-const char* password = "firebot123";
+const char *ssid = "FireBot-AP";
+const char *password = "firebot123";
 
 IPAddress local_IP(192, 168, 4, 1);
 IPAddress gateway(192, 168, 4, 1);
@@ -29,12 +29,12 @@ WebServer server(80);
 Servo myservo;
 int pos = 0;
 bool fireDetected = false;
-bool manualMode = false;  // false = auto mode, true = manual mode
+bool manualMode = false; // false = auto mode, true = manual mode
 bool pumpStatus = false;
 
 // Sensor Pins
-#define Left_S    34
-#define Right_S   35
+#define Left_S 34
+#define Right_S 35
 #define Forward_S 32
 
 // Motor Driver Pins
@@ -176,10 +176,14 @@ void readSensors() {
 
   static unsigned long lastDebug = 0;
   if (millis() - lastDebug > 2000) {
-    Serial.print("Sensors - L: "); Serial.print(left);
-    Serial.print(" | F: "); Serial.print(front);
-    Serial.print(" | R: "); Serial.print(right);
-    Serial.print(" | Mode: "); Serial.println(manualMode ? "MANUAL" : "AUTO");
+    Serial.print("Sensors - L: ");
+    Serial.print(left);
+    Serial.print(" | F: ");
+    Serial.print(front);
+    Serial.print(" | R: ");
+    Serial.print(right);
+    Serial.print(" | Mode: ");
+    Serial.println(manualMode ? "MANUAL" : "AUTO");
     lastDebug = millis();
   }
 }
@@ -197,13 +201,19 @@ void autonomousFireFighting() {
     put_off_fire();
   } else if (left == HIGH) {
     Serial.println("🔥 Fire on LEFT — turning left");
-    turnLeft(); delay(400); stopMotors();
+    turnLeft();
+    delay(400);
+    stopMotors();
   } else if (right == HIGH) {
     Serial.println("🔥 Fire on RIGHT — turning right");
-    turnRight(); delay(400); stopMotors();
+    turnRight();
+    delay(400);
+    stopMotors();
   } else {
     Serial.println("🔍 No fire — moving forward");
-    moveForward(); delay(400); stopMotors();
+    moveForward();
+    delay(400);
+    stopMotors();
   }
 }
 
@@ -215,8 +225,14 @@ void put_off_fire() {
   pumpOn();
   delay(200);
 
-  for (pos = 60; pos <= 120; pos++) { myservo.write(pos); delay(10); }
-  for (pos = 120; pos >= 60; pos--) { myservo.write(pos); delay(10); }
+  for (pos = 60; pos <= 120; pos++) {
+    myservo.write(pos);
+    delay(10);
+  }
+  for (pos = 120; pos >= 60; pos--) {
+    myservo.write(pos);
+    delay(10);
+  }
 
   delay(3000);
   myservo.write(90);
@@ -227,17 +243,50 @@ void put_off_fire() {
 // ========================================
 // Motor Control
 // ========================================
-void stopMotors() { digitalWrite(LM1, LOW); digitalWrite(LM2, LOW); digitalWrite(RM1, LOW); digitalWrite(RM2, LOW); }
-void moveForward() { digitalWrite(LM1, HIGH); digitalWrite(LM2, LOW); digitalWrite(RM1, HIGH); digitalWrite(RM2, LOW); }
-void moveBackward() { digitalWrite(LM1, LOW); digitalWrite(LM2, HIGH); digitalWrite(RM1, LOW); digitalWrite(RM2, HIGH); }
-void turnLeft() { digitalWrite(LM1, LOW); digitalWrite(LM2, LOW); digitalWrite(RM1, HIGH); digitalWrite(RM2, LOW); }
-void turnRight() { digitalWrite(LM1, HIGH); digitalWrite(LM2, LOW); digitalWrite(RM1, LOW); digitalWrite(RM2, LOW); }
+void stopMotors() {
+  digitalWrite(LM1, LOW);
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, LOW);
+  digitalWrite(RM2, LOW);
+}
+void moveForward() {
+  digitalWrite(LM1, HIGH);
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, HIGH);
+  digitalWrite(RM2, LOW);
+}
+void moveBackward() {
+  digitalWrite(LM1, LOW);
+  digitalWrite(LM2, HIGH);
+  digitalWrite(RM1, LOW);
+  digitalWrite(RM2, HIGH);
+}
+void turnLeft() {
+  digitalWrite(LM1, LOW);
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, HIGH);
+  digitalWrite(RM2, LOW);
+}
+void turnRight() {
+  digitalWrite(LM1, HIGH);
+  digitalWrite(LM2, LOW);
+  digitalWrite(RM1, LOW);
+  digitalWrite(RM2, LOW);
+}
 
 // ========================================
 // Pump Control
 // ========================================
-void pumpOn() { digitalWrite(pump, HIGH); pumpStatus = true; Serial.println("💧 Pump ON"); }
-void pumpOff() { digitalWrite(pump, LOW); pumpStatus = false; Serial.println("💧 Pump OFF"); }
+void pumpOn() {
+  digitalWrite(pump, HIGH);
+  pumpStatus = true;
+  Serial.println("💧 Pump ON");
+}
+void pumpOff() {
+  digitalWrite(pump, LOW);
+  pumpStatus = false;
+  Serial.println("💧 Pump OFF");
+}
 
 // ========================================
 // HTTP Handlers
@@ -248,32 +297,39 @@ void handleRoot() {
   html += "<p>Mode: " + String(manualMode ? "Manual" : "Auto") + "</p>";
   html += "<p>Fire Detected: " + String(fireDetected ? "YES" : "NO") + "</p>";
   html += "<p>Pump: " + String(pumpStatus ? "ON" : "OFF") + "</p>";
-  html += "<p>Connected Clients: " + String(WiFi.softAPgetStationNum()) + "</p></body></html>";
+  html += "<p>Connected Clients: " + String(WiFi.softAPgetStationNum()) +
+          "</p></body></html>";
   server.send(200, "text/html", html);
 }
 
 void handleHealth() {
   setCORSHeaders();
-  server.send(200, "application/json", "{\"status\":\"running\",\"version\":\"1.0.1\"}");
+  server.send(200, "application/json",
+              "{\"status\":\"running\",\"version\":\"1.0.1\"}");
 }
 
 void handleConnect() {
   setCORSHeaders();
-  server.send(200, "application/json", "{\"success\":true,\"connected\":true,\"message\":\"Connected to FireBot\"}");
+  server.send(200, "application/json",
+              "{\"success\":true,\"connected\":true,\"message\":\"Connected to "
+              "FireBot\"}");
   Serial.println("📱 Client connected via web interface");
 }
 
 void handleDisconnect() {
   setCORSHeaders();
-  server.send(200, "application/json", "{\"success\":true,\"connected\":false,\"message\":\"Disconnected\"}");
+  server.send(
+      200, "application/json",
+      "{\"success\":true,\"connected\":false,\"message\":\"Disconnected\"}");
   Serial.println("📱 Client disconnected");
 }
 
 void handleSendCommand() {
   setCORSHeaders();
-  
+
   if (!server.hasArg("plain")) {
-    server.send(400, "application/json", "{\"success\":false,\"message\":\"No body\"}");
+    server.send(400, "application/json",
+                "{\"success\":false,\"message\":\"No body\"}");
     return;
   }
 
@@ -285,17 +341,18 @@ void handleSendCommand() {
   Serial.println("📨 Command: " + command);
   executeCommand(command);
 
-  server.send(200, "application/json", "{\"success\":true,\"message\":\"Command " + command + " executed\"}");
+  server.send(200, "application/json",
+              "{\"success\":true,\"message\":\"Command " + command +
+                  " executed\"}");
 }
 
 void handleStatus() {
   setCORSHeaders();
   String response = "{";
   response += "\"connected\":true,";
-  response += "\"sensorData\":{";
-  response += "\"fireDetected\":" + String(fireDetected ? "true" : "false") + ",";
-  response += "\"pumpStatus\":" + String(pumpStatus ? "true" : "false");
-  response += "},";
+  response +=
+      "\"fireDetected\":" + String(fireDetected ? "true" : "false") + ",";
+  response += "\"pumpStatus\":" + String(pumpStatus ? "true" : "false") + ",";
   response += "\"manualMode\":" + String(manualMode ? "true" : "false");
   response += "}";
   server.send(200, "application/json", response);
@@ -303,20 +360,45 @@ void handleStatus() {
 
 void handleNotFound() {
   setCORSHeaders();
-  server.send(404, "application/json", "{\"error\":\"Not Found\",\"path\":\"" + server.uri() + "\"}");
+  server.send(404, "application/json",
+              "{\"error\":\"Not Found\",\"path\":\"" + server.uri() + "\"}");
 }
 
 // ========================================
 // Command Execution
 // ========================================
 void executeCommand(String command) {
-  if (command == "F" || command == "FORWARD") { manualMode = true; moveForward(); Serial.println("→ Moving Forward"); }
-  else if (command == "B" || command == "BACKWARD") { manualMode = true; moveBackward(); Serial.println("→ Moving Backward"); }
-  else if (command == "L" || command == "LEFT") { manualMode = true; turnLeft(); Serial.println("→ Turning Left"); }
-  else if (command == "R" || command == "RIGHT") { manualMode = true; turnRight(); Serial.println("→ Turning Right"); }
-  else if (command == "S" || command == "STOP") { manualMode = true; stopMotors(); Serial.println("→ Stopped"); }
-  else if (command == "P1") { manualMode = true; pumpOn(); }
-  else if (command == "P0") { manualMode = true; pumpOff(); }
-  else if (command == "AUTO") { manualMode = false; stopMotors(); Serial.println("→ Switched to AUTO MODE"); }
-  else { Serial.println("⚠️ Unknown command: " + command); }
+  if (command == "F" || command == "FORWARD") {
+    manualMode = true;
+    moveForward();
+    Serial.println("→ Moving Forward");
+  } else if (command == "B" || command == "BACKWARD") {
+    manualMode = true;
+    moveBackward();
+    Serial.println("→ Moving Backward");
+  } else if (command == "L" || command == "LEFT") {
+    manualMode = true;
+    turnLeft();
+    Serial.println("→ Turning Left");
+  } else if (command == "R" || command == "RIGHT") {
+    manualMode = true;
+    turnRight();
+    Serial.println("→ Turning Right");
+  } else if (command == "S" || command == "STOP") {
+    manualMode = true;
+    stopMotors();
+    Serial.println("→ Stopped");
+  } else if (command == "P1") {
+    manualMode = true;
+    pumpOn();
+  } else if (command == "P0") {
+    manualMode = true;
+    pumpOff();
+  } else if (command == "AUTO") {
+    manualMode = false;
+    stopMotors();
+    Serial.println("→ Switched to AUTO MODE");
+  } else {
+    Serial.println("⚠️ Unknown command: " + command);
+  }
 }

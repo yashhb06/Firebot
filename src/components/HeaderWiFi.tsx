@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Wifi, WifiOff, Moon } from 'lucide-react';
+import { Wifi, WifiOff, Moon, Settings } from 'lucide-react';
 
 interface HeaderWiFiProps {
   isConnected: boolean;
   esp32Ip: string;
   onConnect: (ip: string) => void;
   onDisconnect: () => void;
+  onOpenSettings: () => void;
 }
 
 export const HeaderWiFi: React.FC<HeaderWiFiProps> = ({
@@ -13,6 +14,7 @@ export const HeaderWiFi: React.FC<HeaderWiFiProps> = ({
   esp32Ip,
   onConnect,
   onDisconnect,
+  onOpenSettings,
 }) => {
   const [ipInput, setIpInput] = useState(esp32Ip);
   const [showIpInput, setShowIpInput] = useState(false);
@@ -36,6 +38,14 @@ export const HeaderWiFi: React.FC<HeaderWiFiProps> = ({
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
+            <button 
+              onClick={onOpenSettings}
+              title="WiFi Settings"
+              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-all duration-200"
+            >
+              <Settings className="w-5 h-5 text-slate-400" />
+            </button>
+
             <button className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition-all duration-200">
               <Moon className="w-5 h-5 text-slate-400" />
             </button>
